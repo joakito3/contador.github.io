@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Regresiva Mundial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Krona+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Krona One', sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        #countdown-container {
+            font-size: 2.5rem; /* Ajusta el tamaño base de la fuente */
+            line-height: 1.2;
+        }
+        .time-value {
+            font-size: 4rem; /* Valor numérico más grande */
+            color: #00ff99; /* Color para los números */
+        }
+        .label {
+            display: block;
+            font-size: 1.5rem;
+            color: #cccccc;
+            margin-top: -10px; /* Acercar la etiqueta al número */
+        }
+        .bold-time {
+            font-weight: bold; /* Los números serán negrita como pediste */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="countdown-container">
+        <p id="countdown">Cargando la cuenta regresiva...</p>
+    </div>
+
+    <script>
+        // Duración de la cuenta regresiva: 27 días en milisegundos
+        const DURATION_MS = 27 * 24 * 60 * 60 * 1000;
+        // La clave que usaremos para guardar la fecha final en localStorage
+        const END_DATE_KEY = 'mundial_end_date';
+        const countdownElement = document.getElementById('countdown');
+
+        let endDate;
+
+        // 1. Verificar si ya existe una fecha final guardada
+        const storedEndDate = localStorage.getItem(END_DATE_KEY);
+
+        if (storedEndDate) {
+            // Si existe, la usamos (el contador NO se reinicia)
+            endDate = new Date(storedEndDate).getTime();
+        } else {
+            // Si NO existe, creamos la nueva fecha final (hora actual + 27 días)
+            endDate = new Date().getTime() + DURATION_MS;
+            // Y la guardamos inmediatamente para la próxima vez
+            localStorage.setItem(END_DATE_KEY, new Date(endDate).toISOString());
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endDate - now;
+
+            // Comprobación final
+            if (distance < 0) {
+                countdownElement.innerHTML = '<h2>¡YA ARRANCÓ EL MUNDIAL!!</h2>';
+                clearInterval(interval); // Detiene el contador
+                return;
+            }
+
+            // Cálculo de tiempo
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Construcción del HTML de la cuenta regresiva
+            countdownElement.innerHTML = `
+                <div>
+                    <span class="bold-time time-value">${days}</span>
+                    <span class="label">DÍAS</span>
+                </div>
+                <div>
+                    <span class="bold-time time-value">${hours}</span>
+                    <span class="label">HORAS</span>
+                </div>
+                <div>
+                    <span class="bold-time time-value">${minutes}</span>
+                    <span class="label">MINUTOS</span>
+                </div>
+                <div>
+                    <span class="bold-time time-value">${seconds}</span>
+                    <span class="label">SEGUNDOS</span>
+                </div>
+            `;
+        }
+
+        // Ejecutar la función inmediatamente para evitar el "Cargando..." y luego cada segundo
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
